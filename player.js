@@ -13,22 +13,36 @@ export class RecordPlayer {
         this.createControls();
     }
 
-    load(metadata) {
+    /**
+     * Load videos into <video> elements
+     * @param descriptors
+     */
+    load(descriptors) {
+        this.descriptors = descriptors;
         this.seeker.reset();
-        this.setup(metadata);
-        this.adjustNumberOfScreens(metadata.length);
-        this.seeker.setDuration(this.duration);
-        this.createSources().then(() => this.setVideoPositions());
+
+        this.setup(descriptors);
+        this.adjustNumberOfScreens(descriptors.length);
+        this.createSources().then(() => {
+            this.seeker.setDuration(this.duration);
+            this.setVideoPositions(0);
+        });
     }
 
-    setup(metadata) {
-        this.metadata = metadata;
-        this.startTime = Math.max(...metadata.map(m => m.start));
-        this.endTime = Math.min(...metadata.map(m => m.end));
+    /**
+     * Setup playback basing on metadata
+     */
+    setup() {
+        this.startTime = Math.max(...this.descriptors.map(m => m.start));
+        this.endTime = Math.min(...this.descriptors.map(m => m.end));
         this.duration = this.endTime - this.startTime;
-        this.metadata.forEach(video => video.skip = this.startTime - video.start);
+        this.descriptors.forEach(video => video.skip = this.startTime - video.start);
     }
 
+    /**
+     *
+     * @param number
+     */
     adjustNumberOfScreens(number) {
         if (number > this.videoElements.length) {
             for (let i = this.videoElements.length; i < number; i++) {
@@ -37,16 +51,18 @@ export class RecordPlayer {
                 this.scene.appendChild(videoEl);
             }
         } else if (number < this.videoElements.length) {
-            this.videoElements.filter((v, idx) => idx < number)
-                .forEach(v => v.style.display = 'none');
+            this.videoElements = this.videoElements.slice(0, number);
         }
     }
 
+    /**
+     * Create play/pause button and position seeker
+     */
     createControls() {
         this.controls = Object.assign(document.createElement('div'), {className: 'controls'});
         this.wrapper.appendChild(this.controls);
 
-        this.button = Object.assign(document.createElement('div'), {className: 'button play'});
+        this.button = Object.assign(document.createElement('button'), {className: 'button play'});
         this.button.addEventListener('click', () => {
             if (this.button.classList.contains('play')) {
                 this.play();
@@ -56,23 +72,26 @@ export class RecordPlayer {
         });
         this.controls.appendChild(this.button);
 
-        this.seeker = new Seeker();
+        this.seeker = new Seeker(this.seek.bind(this));
         this.controls.appendChild(this.seeker.getNode());
     }
 
     play() {
         // todo move button modification to caller
         this.button.setAttribute('disabled', 'disabled');
+
+        this.waitAll('play').then(() => {
+            this.button.removeAttribute('disabled');
+            this.button.classList.add('pause');
+            this.button.classList.remove('play');
+        });
+
         for (let i = 0; i < this.videoElements.length; i++) {
             let videoElement = this.videoElements[i];
             console.log('readyState: ' + videoElement.readyState);
             // todo start synchronously when every video is ready
             if (videoElement.readyState >= 3) {
-                videoElement.play().then(() => {
-                    this.button.removeAttribute('disabled');
-                    this.button.classList.add('pause');
-                    this.button.classList.remove('play');
-                });
+                videoElement.play();
             }
         }
     }
@@ -83,14 +102,31 @@ export class RecordPlayer {
         this.videoElements.forEach(vel => vel.pause());
     }
 
-    setVideoPositions() {
-        let pos = this.seeker.getPosition();
+    setVideoPositions(pos) {
         for (let i = 0; i < this.videoElements.length; i++) {
             let videoElement = this.videoElements[i];
-            videoElement.currentTime = (this.metadata[i].skip + pos) / 1000;
+            videoElement.currentTime = (this.descriptors[i].skip + pos) / 1000;
             console.log('Setting element position to ' + videoElement.currentTime);
         }
+    }
 
+    seek(target) {
+        this.button.setAttribute('disabled', 'disabled');
+
+        let wasPaused = this.videoElements[0].paused;
+
+        this.waitAll('seeked').then(() => {
+            if (!wasPaused) {
+                this.play();
+            }
+            this.button.removeAttribute('disabled');
+        });
+
+        for (let i = 0; i < this.videoElements.length; i++) {
+            let videoElement = this.videoElements[i];
+            videoElement.pause();
+            videoElement.currentTime = (this.descriptors[i].skip + target) / 1000;
+        }
     }
 
     resetSources(video) {
@@ -104,24 +140,34 @@ export class RecordPlayer {
      * @return Promise promise of metadata for all videos loaded
      */
     createSources() {
-        let q = [];
+        let p = this.waitAll('loadedmetadata');
+
         this.videoElements.forEach((v, i) => {
+            this.resetSources(v);
+
+            let source = Object.assign(document.createElement('source'), {
+                src: this.descriptors[i].url,
+                type: this.descriptors[i].type
+            });
+            v.appendChild(source);
+        });
+
+        return p;
+    }
+
+    waitAll(evtName) {
+        let q = [];
+        this.videoElements.forEach(v => {
             q.push(new Promise((resolve) => {
-                function onLoad() {
+                function one() {
                     resolve();
-                    v.removeEventListener(onLoad);
+                    v.removeEventListener(evtName, one);
                 }
 
-                this.resetSources(v);
-                let source = Object.assign(document.createElement('source'), {
-                    src: this.metadata[i].url,
-                    type: this.metadata[i].type
-                });
-                v.appendChild(source);
-                v.addEventListener('loadedmetadata', onLoad);
+                v.addEventListener(evtName, one);
             }));
         });
-        return Promise.all(q);
+        return Promise.all(q).then(() => console.log(`All ${evtName} now`));
     }
 
     /**
@@ -133,13 +179,15 @@ export class RecordPlayer {
         let video = Object.assign(document.createElement('video'), {controls: true});
         if (main) {
             video.addEventListener('timeupdate', evt => this.onTimeUpdate(video, evt));
+            video.addEventListener('seeking', () => console.log('seeking'));
+            video.addEventListener('seeked', () => console.log('seeked'));
         }
         return video;
     }
 
     onTimeUpdate(videoElement) {
         console.log(videoElement.currentTime);
-        console.log(videoElement.currentTime * 1000 - this.metadata[0].skip);
-        this.seeker.setPosition(videoElement.currentTime * 1000 - this.metadata[0].skip);
+        console.log(videoElement.currentTime * 1000 - this.descriptors[0].skip);
+        this.seeker.setPosition(videoElement.currentTime * 1000 - this.descriptors[0].skip);
     }
 }
