@@ -1,4 +1,5 @@
 import {Seeker} from './seeker.js';
+import {Utils} from './utils.js';
 
 export class RecordPlayer {
     constructor(container) {
@@ -77,7 +78,7 @@ export class RecordPlayer {
     }
 
     play() {
-        // todo move button modification to caller
+        // todo move button modification elsewhere
         this.button.setAttribute('disabled', 'disabled');
 
         this.waitAll('play').then(() => {
@@ -86,13 +87,21 @@ export class RecordPlayer {
             this.button.classList.remove('play');
         });
 
+        let q = [];
+
         for (let i = 0; i < this.videoElements.length; i++) {
             let videoElement = this.videoElements[i];
             console.log('readyState: ' + videoElement.readyState);
-            // todo start synchronously when every video is ready
-            if (videoElement.readyState >= 3) {
-                videoElement.play();
-            }
+
+            Promise.all(q).then(() => videoElement.play());
+
+            q.push(new Promise(resolve => {
+                if (videoElement.readyState >= 3) {
+                    resolve();
+                } else {
+                    Utils.one(videoElement, 'playing', resolve);
+                }
+            }));
         }
     }
 
@@ -159,12 +168,7 @@ export class RecordPlayer {
         let q = [];
         this.videoElements.forEach(v => {
             q.push(new Promise((resolve) => {
-                function one() {
-                    resolve();
-                    v.removeEventListener(evtName, one);
-                }
-
-                v.addEventListener(evtName, one);
+                Utils.one(v, evtName, resolve);
             }));
         });
         return Promise.all(q).then(() => console.log(`All ${evtName} now`));
@@ -176,13 +180,38 @@ export class RecordPlayer {
      * @return HTMLElement
      */
     createVideoElement(main) {
-        let video = Object.assign(document.createElement('video'), {controls: true});
+        let videoElement = Object.assign(document.createElement('video'), {controls: false});
         if (main) {
-            video.addEventListener('timeupdate', evt => this.onTimeUpdate(video, evt));
-            video.addEventListener('seeking', () => console.log('seeking'));
-            video.addEventListener('seeked', () => console.log('seeked'));
+            videoElement.addEventListener('timeupdate', evt => this.onTimeUpdate(videoElement, evt));
         }
-        return video;
+        this.setupDiagnostic(videoElement);
+        return videoElement;
+    }
+
+    setupDiagnostic(videoElement) {
+        let diagnostic = Object.assign(document.createElement('pre'), {className: 'diagnostic'});
+        videoElement.addEventListener('mousemove', evt => {
+            diagnostic.style.opacity = '1';
+            diagnostic.style.left = evt.clientX + 'px';
+        });
+        videoElement.addEventListener('mouseleave', () => diagnostic.style.opacity = '0');
+
+        function add(msg) {
+            diagnostic.innerHTML += msg + '<br>';
+            diagnostic.scrollTop = diagnostic.scrollHeight - diagnostic.clientHeight;
+        }
+
+        videoElement.addEventListener('canplay', () => add('canplay'));
+        videoElement.addEventListener('error', () => add('error'));
+        videoElement.addEventListener('seeking', () => add('seeking'));
+        videoElement.addEventListener('seeked', () => add('seeked'));
+        videoElement.addEventListener('playing', () => add('playing'));
+        videoElement.addEventListener('play', () => add('play'));
+        videoElement.addEventListener('stalled', () => add('stalled'));
+        // videoElement.addEventListener('suspend', () => add('suspend'));
+        videoElement.addEventListener('waiting', () => add('waiting'));
+
+        document.body.appendChild(diagnostic);
     }
 
     onTimeUpdate(videoElement) {

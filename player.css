@@ -90,3 +90,15 @@
   font-size: 0.85rem;
   margin-left: 0.5rem;
 }
+
+.diagnostic {
+  opacity: 0;
+  background: white;
+  padding: 0.5rem;
+  position: fixed;
+  height: 10rem;
+  width: 6rem;
+  overflow-y: scroll;
+  pointer-events: none;
+  user-select: none;
+}
