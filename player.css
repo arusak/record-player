@@ -1,12 +1,15 @@
 .seeker {
+  display: flex;
   flex: 1;
   height: 1rem;
   position: relative;
 }
 
-.seeker .total {
+.seeker .bar {
+  flex: 1;
   height: 100%;
   background: #dddddd;
+  cursor: pointer;
 }
 
 .seeker .viewed,
@@ -26,12 +29,21 @@
 }
 
 .seeker .float {
-  position: absolute;
-  top: -2rem;
+  display: none;
   min-width: 3rem;
-  height: 1rem;
+  padding: 0.2rem 0.4rem;
+
+  position: absolute;
+  top: -1rem;
+
   background: white;
+  border-radius: 2px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  user-select: none;
+
   text-align: center;
+  font-size: 0.7rem;
 }
 
 .controls {
@@ -44,6 +56,7 @@
   display: inline-block;
   width: 2rem;
   height: 2rem;
+  margin: 0 0.5rem 0 0;
 
   background: darkorange;
   border: none;
@@ -73,3 +86,7 @@
   content: '►';
 }
 
+.seeker .duration-display {
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}
