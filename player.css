@@ -1,0 +1,60 @@
+.seeker {
+  flex: 1;
+  height: 1rem;
+  position: relative;
+}
+
+.seeker .total {
+  height: 100%;
+  background: #dddddd;
+}
+
+.seeker .viewed,
+.seeker .buffered {
+  height: 100%;
+  position: absolute;
+  top: 0;
+}
+
+.seeker .viewed {
+  background: #268080;
+}
+
+.seeker .buffered {
+  background: #a7d2d2;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+}
+
+.controls .button {
+  position: relative;
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+
+  background: darkorange;
+
+  cursor: pointer;
+}
+
+.controls .button::before {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controls .button.pause::before {
+  content: '▌▌';
+}
+
+.controls .button.play::before {
+  position: absolute;
+  content: '►';
+}
+

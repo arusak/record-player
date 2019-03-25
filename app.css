@@ -1,0 +1,18 @@
+html , body {
+  height: 100%;
+
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #94a5a5;
+}
+
+#container {
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
