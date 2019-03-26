@@ -178,7 +178,7 @@ export class RecordPlayer {
      * @return HTMLElement
      */
     createVideoElement(main) {
-        let videoElement = Object.assign(document.createElement('video'), {controls: false});
+        let videoElement = Object.assign(document.createElement('video'), {controls: false, className: 'rp-video'});
         if (main) {
             videoElement.addEventListener('timeupdate', evt => this.onTimeUpdate(videoElement, evt));
         }
@@ -218,7 +218,7 @@ export class RecordPlayer {
         // videoElement.addEventListener('suspend', () => add('suspend'));
         videoElement.addEventListener('waiting', () => add('waiting'));
 
-        document.body.appendChild(diagnostic);
+        this.wrapper.appendChild(diagnostic);
     }
 
     onTimeUpdate(videoElement) {
