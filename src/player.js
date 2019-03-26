@@ -6,10 +6,10 @@ export class RecordPlayer {
         this.videoElements = [];
         this.options = options;
 
-        this.wrapper = Object.assign(document.createElement('div'), {className: 'wrapper'});
+        this.wrapper = Object.assign(document.createElement('div'), {className: 'rp-player'});
         container.appendChild(this.wrapper);
 
-        this.scene = Object.assign(document.createElement('div'), {className: 'scene'});
+        this.scene = Object.assign(document.createElement('div'), {className: 'rp-scene'});
         this.wrapper.appendChild(this.scene);
 
         this.createControls();
@@ -61,12 +61,12 @@ export class RecordPlayer {
      * Create play/pause button and position seeker
      */
     createControls() {
-        this.controls = Object.assign(document.createElement('div'), {className: 'controls'});
+        this.controls = Object.assign(document.createElement('div'), {className: 'rp-controls'});
         this.wrapper.appendChild(this.controls);
 
-        this.button = Object.assign(document.createElement('button'), {className: 'button play'});
+        this.button = Object.assign(document.createElement('button'), {className: 'rp-button rp-button-play'});
         this.button.addEventListener('click', () => {
-            if (this.button.classList.contains('play')) {
+            if (this.button.classList.contains('rp-button-play')) {
                 this.play();
             } else {
                 this.pause();
@@ -196,7 +196,7 @@ export class RecordPlayer {
      * @param videoElement
      */
     setupDiagnostic(videoElement) {
-        let diagnostic = Object.assign(document.createElement('pre'), {className: 'diagnostic'});
+        let diagnostic = Object.assign(document.createElement('pre'), {className: 'rp-diagnostic'});
         videoElement.addEventListener('mousemove', evt => {
             diagnostic.style.opacity = '1';
             diagnostic.style.left = evt.clientX + 'px';
@@ -240,11 +240,11 @@ export class RecordPlayer {
         }
 
         if (playing === true) {
-            this.button.classList.add('pause');
-            this.button.classList.remove('play');
+            this.button.classList.add('rp-button-pause');
+            this.button.classList.remove('rp-button-play');
         } else if (playing === false) {
-            this.button.classList.remove('pause');
-            this.button.classList.add('play');
+            this.button.classList.remove('rp-button-pause');
+            this.button.classList.add('rp-button-play');
         }
     }
 

@@ -1,34 +1,34 @@
-.seeker {
+.rp-seeker {
   display: flex;
   flex: 1;
   height: 1rem;
   position: relative;
 }
 
-.seeker .bar {
+.rp-seeker-bar {
   flex: 1;
   height: 100%;
   background: #dddddd;
   cursor: pointer;
 }
 
-.seeker .viewed,
-.seeker .buffered {
+.rp-seeker-viewed,
+.rp-seeker-buffered {
   height: 100%;
   position: absolute;
   top: 0;
   pointer-events: none;
 }
 
-.seeker .viewed {
+.rp-seeker-viewed {
   background: #268080;
 }
 
-.seeker .buffered {
+.rp-seeker-buffered {
   background: #a7d2d2;
 }
 
-.seeker .float {
+.rp-seeker-float {
   display: none;
   min-width: 3rem;
   padding: 0.2rem 0.4rem;
@@ -46,12 +46,12 @@
   font-size: 0.7rem;
 }
 
-.controls {
+.rp-controls {
   display: flex;
   align-items: center;
 }
 
-.controls .button {
+.rp-button {
   position: relative;
   display: inline-block;
   width: 2rem;
@@ -64,7 +64,7 @@
   cursor: pointer;
 }
 
-.controls .button::before {
+.rp-button::before {
   position: absolute;
   top: 0;
   left: 0;
@@ -77,21 +77,21 @@
   align-items: center;
 }
 
-.controls .button.pause::before {
+.rp-button-pause::before {
   content: ' ▌▌';
 }
 
-.controls .button.play::before {
+.rp-button-play::before {
   position: absolute;
   content: '►';
 }
 
-.seeker .duration-display {
+.rp-seeker-duration-display {
   font-size: 0.85rem;
   margin-left: 0.5rem;
 }
 
-.diagnostic {
+.rp-diagnostic {
   opacity: 0;
   background: white;
   padding: 0.5rem;
