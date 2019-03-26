@@ -136,6 +136,13 @@ export class RecordPlayer {
         }
     }
 
+    /**
+     * Stop downloading everything by removing sources
+     * You need to load() after this to play something
+     */
+    reset() {
+        this.videoElements.forEach(Utils.resetMediaSources);
+    }
 
     /**
      * Create video sources from links provided in metadata
