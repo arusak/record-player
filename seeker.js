@@ -1,3 +1,5 @@
+import {Utils} from './utils.js';
+
 let node, bar, viewed, buffered, float, durationDisplay;
 let duration, ppms;
 let onSeek;
@@ -38,7 +40,7 @@ export class Seeker {
     setDuration(dur) {
         duration = dur;
         ppms = bar.clientWidth / duration;
-        durationDisplay.innerText = formatTime(dur);
+        durationDisplay.innerText = Utils.formatTime(dur);
     }
 
     setPosition(pos) {
@@ -55,24 +57,15 @@ export class Seeker {
 
     onMouseMove(evt) {
         float.style.display = 'block';
-        float.innerText = formatTime(evt.offsetX / ppms);
+        float.innerText = Utils.formatTime(evt.offsetX / ppms);
         float.style.left = evt.offsetX - float.clientWidth / 2 + 'px';
     }
 
-    onMouseOut(evt) {
+    onMouseOut() {
         float.style.display = 'none';
     }
 
     seekTo(target) {
         onSeek(target);
     }
-}
-
-function formatTime(ms) {
-    let s = Math.trunc(ms / 1000);
-    let m = Math.trunc(s / 60);
-    s = s % 60;
-
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-
 }

@@ -2,8 +2,9 @@ import {Seeker} from './seeker.js';
 import {Utils} from './utils.js';
 
 export class RecordPlayer {
-    constructor(container) {
+    constructor(container, options) {
         this.videoElements = [];
+        this.options = options;
 
         this.wrapper = Object.assign(document.createElement('div'), {className: 'wrapper'});
         container.appendChild(this.wrapper);
@@ -22,26 +23,26 @@ export class RecordPlayer {
         this.descriptors = descriptors;
         this.seeker.reset();
 
-        this.setup(descriptors);
+        this.setupPlayback(descriptors);
         this.adjustNumberOfScreens(descriptors.length);
         this.createSources().then(() => {
             this.seeker.setDuration(this.duration);
-            this.setVideoPositions(0);
+            this.seek(0);
         });
     }
 
     /**
      * Setup playback basing on metadata
      */
-    setup() {
-        this.startTime = Math.max(...this.descriptors.map(m => m.start));
-        this.endTime = Math.min(...this.descriptors.map(m => m.end));
+    setupPlayback(descriptors) {
+        this.startTime = Math.max(...descriptors.map(m => m.start));
+        this.endTime = Math.min(...descriptors.map(m => m.end));
         this.duration = this.endTime - this.startTime;
-        this.descriptors.forEach(video => video.skip = this.startTime - video.start);
+        descriptors.forEach(video => video.skip = this.startTime - video.start);
     }
 
     /**
-     *
+     * Creates a necessary number of <video> elements
      * @param number
      */
     adjustNumberOfScreens(number) {
@@ -77,21 +78,21 @@ export class RecordPlayer {
         this.controls.appendChild(this.seeker.getNode());
     }
 
+    /**
+     * Synchronously play all video files
+     */
     play() {
-        // todo move button modification elsewhere
-        this.button.setAttribute('disabled', 'disabled');
+        this.tuneButton({enabled: false});
 
         this.waitAll('play').then(() => {
-            this.button.removeAttribute('disabled');
-            this.button.classList.add('pause');
-            this.button.classList.remove('play');
+            this.tuneButton({enabled: true, playing: true});
         });
 
         let q = [];
 
         for (let i = 0; i < this.videoElements.length; i++) {
             let videoElement = this.videoElements[i];
-            console.log('readyState: ' + videoElement.readyState);
+            this.log('readyState: ' + videoElement.readyState);
 
             Promise.all(q).then(() => videoElement.play());
 
@@ -99,28 +100,25 @@ export class RecordPlayer {
                 if (videoElement.readyState >= 3) {
                     resolve();
                 } else {
-                    Utils.one(videoElement, 'playing', resolve);
+                    Utils.one(videoElement, 'canplay', resolve);
                 }
             }));
         }
     }
 
     pause() {
-        this.button.classList.remove('pause');
-        this.button.classList.add('play');
+        this.tuneButton({playing: false});
         this.videoElements.forEach(vel => vel.pause());
     }
 
-    setVideoPositions(pos) {
-        for (let i = 0; i < this.videoElements.length; i++) {
-            let videoElement = this.videoElements[i];
-            videoElement.currentTime = (this.descriptors[i].skip + pos) / 1000;
-            console.log('Setting element position to ' + videoElement.currentTime);
-        }
-    }
-
+    /**
+     * Go to specific time
+     * If video was playing, pauses it and resumes after successful seeking.
+     *
+     * @param target
+     */
     seek(target) {
-        this.button.setAttribute('disabled', 'disabled');
+        this.tuneButton({enabled: false});
 
         let wasPaused = this.videoElements[0].paused;
 
@@ -128,7 +126,7 @@ export class RecordPlayer {
             if (!wasPaused) {
                 this.play();
             }
-            this.button.removeAttribute('disabled');
+            this.tuneButton({enabled: true});
         });
 
         for (let i = 0; i < this.videoElements.length; i++) {
@@ -138,11 +136,6 @@ export class RecordPlayer {
         }
     }
 
-    resetSources(video) {
-        for (let s of video.getElementsByTagName('source')) {
-            s.remove();
-        }
-    }
 
     /**
      * Create video sources from links provided in metadata
@@ -151,27 +144,32 @@ export class RecordPlayer {
     createSources() {
         let p = this.waitAll('loadedmetadata');
 
-        this.videoElements.forEach((v, i) => {
-            this.resetSources(v);
+        this.videoElements.forEach((videoElement, idx) => {
+            Utils.resetMediaSources(videoElement);
 
             let source = Object.assign(document.createElement('source'), {
-                src: this.descriptors[i].url,
-                type: this.descriptors[i].type
+                src: this.descriptors[idx].url,
+                type: this.descriptors[idx].type
             });
-            v.appendChild(source);
+            videoElement.appendChild(source);
         });
 
         return p;
     }
 
+    /**
+     * Wait for an event to fire on all the video elements
+     * @param evtName what event to catch
+     * @return {Promise} resolved when the event is fired on every video element
+     */
     waitAll(evtName) {
         let q = [];
-        this.videoElements.forEach(v => {
+        this.videoElements.forEach(videoElement => {
             q.push(new Promise((resolve) => {
-                Utils.one(v, evtName, resolve);
+                Utils.one(videoElement, evtName, resolve);
             }));
         });
-        return Promise.all(q).then(() => console.log(`All ${evtName} now`));
+        return Promise.all(q).then(() => this.log(`All ${evtName.toUpperCase()} now`));
     }
 
     /**
@@ -184,10 +182,19 @@ export class RecordPlayer {
         if (main) {
             videoElement.addEventListener('timeupdate', evt => this.onTimeUpdate(videoElement, evt));
         }
-        this.setupDiagnostic(videoElement);
+
+        if (this.options.debug) {
+            this.setupDiagnostic(videoElement);
+        }
+
         return videoElement;
     }
 
+    /**
+     * Create diagnostic overlay for every video
+     * Called when options.debug is true
+     * @param videoElement
+     */
     setupDiagnostic(videoElement) {
         let diagnostic = Object.assign(document.createElement('pre'), {className: 'diagnostic'});
         videoElement.addEventListener('mousemove', evt => {
@@ -215,8 +222,36 @@ export class RecordPlayer {
     }
 
     onTimeUpdate(videoElement) {
-        console.log(videoElement.currentTime);
-        console.log(videoElement.currentTime * 1000 - this.descriptors[0].skip);
-        this.seeker.setPosition(videoElement.currentTime * 1000 - this.descriptors[0].skip);
+        let seekerTime = videoElement.currentTime * 1000 - this.descriptors[0].skip;
+        this.log('Main <video> time', videoElement.currentTime + 's', 'Seeker time', seekerTime + 'ms');
+        this.seeker.setPosition(seekerTime);
+    }
+
+    /**
+     * Sets button state
+     * @param enabled if true, removes disabled state. If false, adds it. Otherwise, does nothing with disabled state
+     * @param playing if true, sets class for pause icon. If false, set class for play icon. Otherwise, does nothing with classes
+     */
+    tuneButton({enabled, playing}) {
+        if (enabled === true) {
+            this.button.removeAttribute('disabled');
+        } else if (enabled === false) {
+            this.button.setAttribute('disabled', 'disabled');
+        }
+
+        if (playing === true) {
+            this.button.classList.add('pause');
+            this.button.classList.remove('play');
+        } else if (playing === false) {
+            this.button.classList.remove('pause');
+            this.button.classList.add('play');
+        }
+    }
+
+    log(...msgs) {
+        if (this.options.log) {
+            console.log('[RecordPlayer]', ...msgs);
+        }
     }
 }
+
