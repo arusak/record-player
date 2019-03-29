@@ -74,6 +74,11 @@ export class RecordPlayer {
         this.button = Object.assign(document.createElement('button'), {className: 'rp-button rp-button-play'});
         this.button.addEventListener('click', () => {
             if (this.button.classList.contains('rp-button-play')) {
+                // rewind when user clicks play on ended scene
+                if (this.ended) {
+                    this.ended = false;
+                    this.seek(0);
+                }
                 this.play();
             } else {
                 this.pause();
@@ -127,6 +132,7 @@ export class RecordPlayer {
     seek(target) {
         this.tuneButton({enabled: false});
 
+        this.ended = false;
         let wasPaused = this.videoElements[0].paused;
 
         this.waitAll('seeked').then(() => {
@@ -166,6 +172,11 @@ export class RecordPlayer {
                 type: this.descriptors[idx].type
             });
             videoElement.appendChild(source);
+
+            videoElement.addEventListener('ended', () => {
+                this.ended = true;
+                this.pause();
+            })
         });
 
         return p;
