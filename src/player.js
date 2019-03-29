@@ -86,6 +86,10 @@ export class RecordPlayer {
         });
         this.controls.appendChild(this.button);
 
+        this.scene.addEventListener('click', () => {
+            this.button.dispatchEvent(new MouseEvent('click'));
+        });
+
         this.seeker = new Seeker(this.seek.bind(this));
         this.controls.appendChild(this.seeker.getNode());
     }
