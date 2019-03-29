@@ -178,6 +178,7 @@ export class RecordPlayer {
             videoElement.appendChild(source);
 
             videoElement.addEventListener('ended', () => {
+                this.seeker.setPosition(this.duration);
                 this.ended = true;
                 this.pause();
             })
@@ -244,7 +245,6 @@ export class RecordPlayer {
         videoElement.addEventListener('playing', () => add('playing'));
         videoElement.addEventListener('play', () => add('play'));
         videoElement.addEventListener('stalled', () => add('stalled'));
-        // videoElement.addEventListener('suspend', () => add('suspend'));
         videoElement.addEventListener('waiting', () => add('waiting'));
 
         this.wrapper.appendChild(diagnostic);

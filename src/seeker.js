@@ -1,7 +1,7 @@
 import {Utils} from './utils.js';
 
 let node, bar, viewed, buffered, float, durationDisplay;
-let duration, ppms;
+let duration;
 let onSeek;
 
 export class Seeker {
@@ -37,14 +37,13 @@ export class Seeker {
         this.setPosition(0);
     }
 
-    setDuration(dur) {
-        duration = dur;
-        ppms = bar.clientWidth / duration;
-        durationDisplay.innerText = Utils.formatTime(dur);
+    setDuration(ms) {
+        duration = ms;
+        durationDisplay.innerText = Utils.formatTime(duration);
     }
 
-    setPosition(pos) {
-        viewed.style.width = pos * ppms + 'px';
+    setPosition(ms) {
+        viewed.style.width = ms / duration * 100 + '%';
     }
 
     getNode() {
@@ -52,12 +51,12 @@ export class Seeker {
     }
 
     onClick(evt) {
-        this.seekTo(evt.offsetX / ppms);
+        this.seekTo(evt.offsetX / bar.clientWidth);
     }
 
     onMouseMove(evt) {
         float.style.display = 'block';
-        float.innerText = Utils.formatTime(evt.offsetX / ppms);
+        float.innerText = Utils.formatTime((evt.offsetX / bar.clientWidth) * duration);
         float.style.left = evt.offsetX - float.clientWidth / 2 + 'px';
     }
 
@@ -65,7 +64,7 @@ export class Seeker {
         float.style.display = 'none';
     }
 
-    seekTo(target) {
-        onSeek(target);
+    seekTo(fraction) {
+        onSeek(duration * fraction);
     }
 }
