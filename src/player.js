@@ -25,7 +25,11 @@ export class RecordPlayer {
 
         this.setupPlayback(descriptors);
         this.adjustNumberOfScreens(descriptors.length);
-        this.createSources().then(() => {
+        this.loadMedia().then(() => {
+            // forcing videos to have equal height
+            this.videoElements.forEach(videoElement => {
+                videoElement.parentElement.style.flex = videoElement.videoWidth / videoElement.videoHeight;
+            });
             this.seeker.setDuration(this.duration);
             this.seek(0);
         });
@@ -49,8 +53,11 @@ export class RecordPlayer {
         if (number > this.videoElements.length) {
             for (let i = this.videoElements.length; i < number; i++) {
                 let videoEl = this.createVideoElement(i === 0);
+                let videoWrapper = Object.assign(document.createElement('div'), {className: 'rp-video-wrapper'});
+                videoWrapper.appendChild(videoEl);
+
                 this.videoElements.push(videoEl);
-                this.scene.appendChild(videoEl);
+                this.scene.appendChild(videoWrapper);
             }
         } else if (number < this.videoElements.length) {
             this.videoElements = this.videoElements.slice(0, number);
@@ -148,7 +155,7 @@ export class RecordPlayer {
      * Create video sources from links provided in metadata
      * @return Promise promise of metadata for all videos loaded
      */
-    createSources() {
+    loadMedia() {
         let p = this.waitAll('loadedmetadata');
 
         this.videoElements.forEach((videoElement, idx) => {
