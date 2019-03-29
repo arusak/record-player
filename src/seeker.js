@@ -29,11 +29,7 @@ export class Seeker {
 
         onSeek = callback;
 
-        this.reset();
-    }
-
-    reset() {
-        duration = 0;
+        duration = 1000;
         this.setPosition(0);
     }
 

@@ -21,16 +21,17 @@ export class RecordPlayer {
      */
     load(descriptors) {
         this.descriptors = descriptors;
-        this.seeker.reset();
-
         this.setupPlayback(descriptors);
+
+        this.seeker.setDuration(this.duration);
+        this.seeker.setPosition(0);
+
         this.adjustNumberOfScreens(descriptors.length);
         this.loadMedia().then(() => {
             // forcing videos to have equal height
             this.videoElements.forEach(videoElement => {
                 videoElement.parentElement.style.flex = videoElement.videoWidth / videoElement.videoHeight;
             });
-            this.seeker.setDuration(this.duration);
             this.seek(0);
         });
     }
