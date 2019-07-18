@@ -4,19 +4,29 @@ import {PlayButton} from './play-button.js';
 
 export class RecordPlayer {
     constructor(container, options) {
-        this.videoElements = [];
-        this.options = options;
+        this.processOptions(options);
+        this.createDom(container);
+    }
 
+    processOptions(options) {
+        this.options = options;
+        if (options.log) {
+            Utils.enableLogging = true;
+        }
+    }
+
+    createDom(container) {
         this.wrapper = Object.assign(document.createElement('div'), {className: 'rp-player'});
         container.appendChild(this.wrapper);
 
         this.scene = Object.assign(document.createElement('div'), {className: 'rp-scene'});
         this.wrapper.appendChild(this.scene);
 
-        this.createControls();
+        this.controls = this.createControls();
+        this.wrapper.appendChild(this.controls);
 
         this.scene.addEventListener('click', () => {
-            this.button.el.dispatchEvent(new MouseEvent('click'));
+            this.playButton.el.dispatchEvent(new MouseEvent('click'));
         });
     }
 
@@ -42,13 +52,13 @@ export class RecordPlayer {
     }
 
     /**
-     * Setup playback basing on metadata
+     * Setup playback basing on descriptors
      */
     setupPlaybackFromDescriptors(descriptors) {
-        this.startTime = Math.max(...descriptors.map(m => m.start));
-        this.endTime = Math.min(...descriptors.map(m => m.end));
-        this.duration = this.endTime - this.startTime;
-        descriptors.forEach(video => video.skip = this.startTime - video.start);
+        let startTime = Math.max(...descriptors.map(video => video.start));
+        let endTime = Math.min(...descriptors.map(video => video.end));
+        this.duration = endTime - startTime;
+        descriptors.forEach(video => video.skip = startTime - video.start);
     }
 
     /**
@@ -56,6 +66,8 @@ export class RecordPlayer {
      * @param number
      */
     adjustNumberOfScreens(number) {
+        this.videoElements = this.videoElements || [];
+
         if (number > this.videoElements.length) {
             for (let i = this.videoElements.length; i < number; i++) {
                 let videoEl = this.createVideoElement(i === 0);
@@ -71,17 +83,18 @@ export class RecordPlayer {
     }
 
     /**
-     * Create play/pause button and position seeker
+     * Create play/pause playButton and position seeker
      */
     createControls() {
-        this.controls = Object.assign(document.createElement('div'), {className: 'rp-controls'});
-        this.wrapper.appendChild(this.controls);
+        let controls = Object.assign(document.createElement('div'), {className: 'rp-controls'});
 
-        this.button = this.createPlayButton();
-        this.controls.appendChild(this.button.el);
+        this.playButton = this.createPlayButton();
+        controls.appendChild(this.playButton.el);
 
         this.seeker = this.createSeeker();
-        this.controls.appendChild(this.seeker.getNode());
+        controls.appendChild(this.seeker.getNode());
+
+        return controls;
     }
 
     createPlayButton() {
@@ -100,39 +113,47 @@ export class RecordPlayer {
      */
     play() {
         // rewind when user clicks play on ended scene
+        this.goToStartIfEnded();
+        this.disablePlayButtonUntilPlaybackStarts();
+        this.startPlaybackWhenReady();
+    }
+
+    pause() {
+        this.playButton.showPlayIcon();
+        this.videoElements.forEach(videoElement => videoElement.pause());
+    }
+
+    goToStartIfEnded() {
         if (this.ended) {
             this.ended = false;
             this.seek(0);
         }
+    }
 
-        this.button.disable();
-
-        this.waitAll('play').then(() => {
-            this.button.enable();
-            this.button.showPauseIcon();
-        });
-
-        let q = [];
-
-        for (let i = 0; i < this.videoElements.length; i++) {
-            let videoElement = this.videoElements[i];
-            this.log('readyState: ' + videoElement.readyState);
-
-            Promise.all(q).then(() => videoElement.play());
-
-            q.push(new Promise(resolve => {
+    startPlaybackWhenReady() {
+        let canPlayPromises = this.videoElements.map(videoElement => {
+            return new Promise(resolve => {
                 if (videoElement.readyState >= 3) {
                     resolve();
                 } else {
                     Utils.one(videoElement, 'canplay', resolve);
                 }
-            }));
-        }
+            });
+        });
+
+        Promise.all(canPlayPromises).then(() => {
+            Utils.log(arguments);
+            this.videoElements.forEach(e => e.play());
+        });
     }
 
-    pause() {
-        this.button.showPlayIcon();
-        this.videoElements.forEach(videoElement => videoElement.pause());
+    disablePlayButtonUntilPlaybackStarts() {
+        this.playButton.disable();
+
+        this.waitAll('play').then(() => {
+            this.playButton.enable();
+            this.playButton.showPauseIcon();
+        });
     }
 
     /**
@@ -142,23 +163,23 @@ export class RecordPlayer {
      * @param targetInMs
      */
     seek(targetInMs) {
-        this.button.disable();
+        this.playButton.disable();
 
         this.ended = false;
         let wasPaused = this.videoElements[0].paused;
 
         this.waitAll('seeked').then(() => {
+            // when seek on all files is ended, resume playing if needed
             if (!wasPaused) {
                 this.play();
             }
-            this.button.enable();
+            this.playButton.enable();
         });
 
-        for (let i = 0; i < this.videoElements.length; i++) {
-            let videoElement = this.videoElements[i];
+        this.videoElements.forEach((videoElement, idx) => {
             videoElement.pause();
-            videoElement.currentTime = (this.descriptors[i].skip + targetInMs) / 1000;
-        }
+            videoElement.currentTime = (this.descriptors[idx].skip + targetInMs) / 1000;
+        });
     }
 
     /**
@@ -174,8 +195,14 @@ export class RecordPlayer {
      * @return Promise promise of metadata for all videos loaded
      */
     loadMedia() {
-        let p = this.waitAll('loadedmetadata');
+        function goToEndWhenEnded() {
 
+        }
+
+        // first we create promise which awaits all video elements to load metadata
+        let allMetadataLoadedPromise = this.waitAll('loadedmetadata');
+
+        // then we initiate loading of files
         this.videoElements.forEach((videoElement, idx) => {
             Utils.resetMediaSources(videoElement);
 
@@ -192,6 +219,7 @@ export class RecordPlayer {
                 videoElement.appendChild(source);
             }
 
+
             videoElement.addEventListener('ended', () => {
                 this.seeker.setPosition(this.duration);
                 this.ended = true;
@@ -199,7 +227,7 @@ export class RecordPlayer {
             })
         });
 
-        return p;
+        return allMetadataLoadedPromise;
     }
 
     /**
@@ -208,13 +236,14 @@ export class RecordPlayer {
      * @return {Promise} resolved when the event is fired on every video element
      */
     waitAll(evtName) {
-        let q = [];
-        this.videoElements.forEach(videoElement => {
-            q.push(new Promise((resolve) => {
+        let awaitedPromises = this.videoElements.map(videoElement => {
+            return new Promise((resolve) => {
                 Utils.one(videoElement, evtName, resolve);
-            }));
+            });
         });
-        return Promise.all(q).then(() => this.log(`All ${evtName.toUpperCase()} now`));
+
+        // return promise and do some logging
+        return Promise.all(awaitedPromises).then(() => Utils.log(`All ${evtName.toUpperCase()} now`));
     }
 
     /**
@@ -261,14 +290,8 @@ export class RecordPlayer {
 
     onTimeUpdate(videoElement) {
         let seekerTime = videoElement.currentTime * 1000 - this.descriptors[0].skip;
-        this.log('Main <video> time', videoElement.currentTime + 's', 'Seeker time', seekerTime + 'ms');
+        Utils.log('Main <video> time', videoElement.currentTime + 's', 'Seeker time', seekerTime + 'ms');
         this.seeker.setPosition(seekerTime);
-    }
-
-    log(...msgs) {
-        if (this.options.log) {
-            console.log('[RecordPlayer]', ...msgs);
-        }
     }
 }
 

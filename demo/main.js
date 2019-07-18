@@ -1,4 +1,4 @@
-import {RecordPlayer} from '../src/player.js';
+import {RecordPlayer} from '../src/record-player.js';
 
 let player = new RecordPlayer(document.getElementById('container'), {debug: true, log: true});
 

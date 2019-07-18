@@ -2,7 +2,7 @@
   "name": "record-player",
   "version": "0.2.1",
   "description": "Multiple video files player for web",
-  "main": "src/player.js",
+  "main": "src/record-player.js",
   "directories": {
     "example": "demo"
   },

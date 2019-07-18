@@ -13,21 +13,21 @@ export class PlayButton {
             }
         });
     }
-    
-    enable(){
+
+    enable() {
         this.el.removeAttribute('disabled');
     }
-    
-    disable(){
+
+    disable() {
         this.el.setAttribute('disabled', 'disabled');
     }
-    
-    showPlayIcon(){
+
+    showPlayIcon() {
         this.el.classList.remove('rp-button-pause');
         this.el.classList.add('rp-button-play');
     }
-    
-    showPauseIcon(){
+
+    showPauseIcon() {
         this.el.classList.add('rp-button-pause');
         this.el.classList.remove('rp-button-play');
     }

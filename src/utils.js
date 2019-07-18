@@ -1,4 +1,6 @@
 export const Utils = {
+    enableLogging: false,
+
     /**
      * Creates a single-use event handler
      * @param el element to catch events on
@@ -35,5 +37,11 @@ export const Utils = {
         s = s % 60;
 
         return `${m}:${s < 10 ? '0' : ''}${s}`;
+    },
+
+    log(...msgs) {
+        if (this.enableLogging) {
+            console.log('[RecordPlayer] ', ...msgs);
+        }
     }
 };
