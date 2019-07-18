@@ -35,11 +35,11 @@ Create an instance of player.
 * debug - if _true_: show diagnostic overlay with event history for every video. Default: false.
 * log - if _true): do console logging. Default: false.
 
-### load(metadata)
+### load(descriptors)
 
 Load video files into player.
 
-'metadata' is an array of video descriptors. You usually get it from your video streaming service.
+'descriptors' is an array of video descriptors. You usually get it from your video streaming service.
 
 ```
 {
@@ -50,11 +50,14 @@ Load video files into player.
 }
 ```
 
-'url' is the address of source video
+* 'url' is the path to a file or stream.
+* 'type' is optional. This is a mime-type for the loaded file. The browser tries to guess, but sometimes it need help.
+* 'start' and 'end' are the timestamps of the moment video was started and ended. It might be UNIX time or your custom time offset.
 
-'type' is a mime-type of video file
 
-'start' and 'end' are the timestamps of the moment video was started and ended
+### reset
+
+Stop downloading any content and reset all video sources. To be called on component destruction. 
 
 ### API usage example
 ```
