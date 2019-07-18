@@ -3,20 +3,33 @@ Multiple video player
 
 For synchronized playback of multiple video files at once.
 
-Uses one set of controls for whole set of videos.
+Supports any number of streams playing at once. Creates a separate <video> element for each file.
+Uses a single set of controls for the whole set of videos.
 
-Able to play videos with different starting positions.
+Is able to start playing videos with different starting positions.
 
+### Why
+
+This player was created as a part of a video conferencing system.
+That system stored all conversations in video files for archiving purposes.
+For each conversation, it created as many files as there were participants in
+the conversation. The recording of each file started at the moment when the person
+joined the conversation. 
+
+So when you wanted to watch archived record, you had to somehow sync the playback of 
+several files. That included synchronous start and ability to seek all videos with a single
+set of controls. So this tool was created.
+ 
 API
 ---
 
-new RecordPlayer(container)
+### new RecordPlayer(container)
 
 Create an instance of player.
 
 'container' is a HTML element in which you want this player to render
 
-load(metadata)
+### load(metadata)
 
 Load video files into player.
 
@@ -30,6 +43,8 @@ Load video files into player.
     end: 1553259983475,
 }
 ```
+
+'url' is the address of source video
 
 'type' is a mime-type of video file
 
