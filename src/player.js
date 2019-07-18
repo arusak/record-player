@@ -14,6 +14,10 @@ export class RecordPlayer {
         this.wrapper.appendChild(this.scene);
 
         this.createControls();
+
+        this.scene.addEventListener('click', () => {
+            this.button.el.dispatchEvent(new MouseEvent('click'));
+        });
     }
 
     /**
@@ -22,7 +26,7 @@ export class RecordPlayer {
      */
     load(descriptors) {
         this.descriptors = descriptors;
-        this.setupPlayback(descriptors);
+        this.setupPlaybackFromDescriptors(descriptors);
 
         this.seeker.setDuration(this.duration);
         this.seeker.setPosition(0);
@@ -40,7 +44,7 @@ export class RecordPlayer {
     /**
      * Setup playback basing on metadata
      */
-    setupPlayback(descriptors) {
+    setupPlaybackFromDescriptors(descriptors) {
         this.startTime = Math.max(...descriptors.map(m => m.start));
         this.endTime = Math.min(...descriptors.map(m => m.end));
         this.duration = this.endTime - this.startTime;
@@ -76,11 +80,7 @@ export class RecordPlayer {
         this.button = this.createPlayButton();
         this.controls.appendChild(this.button.el);
 
-        this.scene.addEventListener('click', () => {
-            this.button.dispatchEvent(new MouseEvent('click'));
-        });
-
-        this.seeker = new Seeker(this.seek.bind(this));
+        this.seeker = this.createSeeker();
         this.controls.appendChild(this.seeker.getNode());
     }
 
@@ -89,6 +89,10 @@ export class RecordPlayer {
         button.onplay = this.play.bind(this);
         button.onpause = this.pause.bind(this);
         return button;
+    }
+
+    createSeeker() {
+        return new Seeker(this.seek.bind(this));
     }
 
     /**
@@ -128,16 +132,16 @@ export class RecordPlayer {
 
     pause() {
         this.button.showPlayIcon();
-        this.videoElements.forEach(vel => vel.pause());
+        this.videoElements.forEach(videoElement => videoElement.pause());
     }
 
     /**
      * Go to specific time
      * If video was playing, pauses it and resumes after successful seeking.
      *
-     * @param target
+     * @param targetInMs
      */
-    seek(target) {
+    seek(targetInMs) {
         this.button.disable();
 
         this.ended = false;
@@ -153,7 +157,7 @@ export class RecordPlayer {
         for (let i = 0; i < this.videoElements.length; i++) {
             let videoElement = this.videoElements[i];
             videoElement.pause();
-            videoElement.currentTime = (this.descriptors[i].skip + target) / 1000;
+            videoElement.currentTime = (this.descriptors[i].skip + targetInMs) / 1000;
         }
     }
 
@@ -242,14 +246,8 @@ export class RecordPlayer {
             diagnostic.scrollTop = diagnostic.scrollHeight - diagnostic.clientHeight;
         }
 
-        videoElement.addEventListener('canplay', () => add('canplay'));
-        videoElement.addEventListener('error', () => add('error'));
-        videoElement.addEventListener('seeking', () => add('seeking'));
-        videoElement.addEventListener('seeked', () => add('seeked'));
-        videoElement.addEventListener('playing', () => add('playing'));
-        videoElement.addEventListener('play', () => add('play'));
-        videoElement.addEventListener('stalled', () => add('stalled'));
-        videoElement.addEventListener('waiting', () => add('waiting'));
+        let evtTypes = ['canplay', 'error', 'seeking', 'seeked', 'playing', 'play', 'stalled', 'waiting', 'pause', 'paused', 'ended'];
+        evtTypes.forEach(type => videoElement.addEventListener(type, () => add(type)));
 
         this.wrapper.appendChild(diagnostic);
     }
