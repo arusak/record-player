@@ -179,11 +179,18 @@ export class RecordPlayer {
         this.videoElements.forEach((videoElement, idx) => {
             Utils.resetMediaSources(videoElement);
 
-            let source = Object.assign(document.createElement('source'), {
-                src: this.descriptors[idx].url,
-                type: this.descriptors[idx].type
-            });
-            videoElement.appendChild(source);
+            let description = this.descriptors[idx];
+
+            if (description.url) {
+                let source = document.createElement('source');
+                source.src = description.url;
+
+                if (description.type) {
+                    source.type = description.type;
+                }
+
+                videoElement.appendChild(source);
+            }
 
             videoElement.addEventListener('ended', () => {
                 this.seeker.setPosition(this.duration);
