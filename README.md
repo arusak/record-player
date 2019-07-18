@@ -8,7 +8,8 @@ Uses a single set of controls for the whole set of videos.
 
 Is able to start playing videos with different starting positions.
 
-### Why
+Why
+---
 
 This player was created as a part of a video conferencing system.
 That system stored all conversations in video files for archiving purposes.
@@ -23,11 +24,16 @@ set of controls. So this tool was created.
 API
 ---
 
-### new RecordPlayer(container)
+### new RecordPlayer(container, [options])
 
 Create an instance of player.
 
 'container' is a HTML element in which you want this player to render
+
+'options' are:
+
+* debug - if _true_: show diagnostic overlay with event history for every video. Default: false.
+* log - if _true): do console logging. Default: false.
 
 ### load(metadata)
 
@@ -49,3 +55,9 @@ Load video files into player.
 'type' is a mime-type of video file
 
 'start' and 'end' are the timestamps of the moment video was started and ended
+
+### API usage example
+```
+let player = new RecordPlayer(document.getElementById('player'), {debug: true});
+player.load(recordsList);
+```
