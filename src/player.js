@@ -1,5 +1,6 @@
 import {Seeker} from './seeker.js';
 import {Utils} from './utils.js';
+import {PlayButton} from './play-button.js';
 
 export class RecordPlayer {
     constructor(container, options) {
@@ -72,20 +73,8 @@ export class RecordPlayer {
         this.controls = Object.assign(document.createElement('div'), {className: 'rp-controls'});
         this.wrapper.appendChild(this.controls);
 
-        this.button = Object.assign(document.createElement('button'), {className: 'rp-button rp-button-play'});
-        this.button.addEventListener('click', () => {
-            if (this.button.classList.contains('rp-button-play')) {
-                // rewind when user clicks play on ended scene
-                if (this.ended) {
-                    this.ended = false;
-                    this.seek(0);
-                }
-                this.play();
-            } else {
-                this.pause();
-            }
-        });
-        this.controls.appendChild(this.button);
+        this.button = this.createPlayButton();
+        this.controls.appendChild(this.button.el);
 
         this.scene.addEventListener('click', () => {
             this.button.dispatchEvent(new MouseEvent('click'));
@@ -95,14 +84,28 @@ export class RecordPlayer {
         this.controls.appendChild(this.seeker.getNode());
     }
 
+    createPlayButton() {
+        let button = new PlayButton();
+        button.onplay = this.play.bind(this);
+        button.onpause = this.pause.bind(this);
+        return button;
+    }
+
     /**
      * Synchronously play all video files
      */
     play() {
-        this.tuneButton({enabled: false});
+        // rewind when user clicks play on ended scene
+        if (this.ended) {
+            this.ended = false;
+            this.seek(0);
+        }
+
+        this.button.disable();
 
         this.waitAll('play').then(() => {
-            this.tuneButton({enabled: true, playing: true});
+            this.button.enable();
+            this.button.showPauseIcon();
         });
 
         let q = [];
@@ -124,7 +127,7 @@ export class RecordPlayer {
     }
 
     pause() {
-        this.tuneButton({playing: false});
+        this.button.showPlayIcon();
         this.videoElements.forEach(vel => vel.pause());
     }
 
@@ -135,7 +138,7 @@ export class RecordPlayer {
      * @param target
      */
     seek(target) {
-        this.tuneButton({enabled: false});
+        this.button.disable();
 
         this.ended = false;
         let wasPaused = this.videoElements[0].paused;
@@ -144,7 +147,7 @@ export class RecordPlayer {
             if (!wasPaused) {
                 this.play();
             }
-            this.tuneButton({enabled: true});
+            this.button.enable();
         });
 
         for (let i = 0; i < this.videoElements.length; i++) {
@@ -255,27 +258,6 @@ export class RecordPlayer {
         let seekerTime = videoElement.currentTime * 1000 - this.descriptors[0].skip;
         this.log('Main <video> time', videoElement.currentTime + 's', 'Seeker time', seekerTime + 'ms');
         this.seeker.setPosition(seekerTime);
-    }
-
-    /**
-     * Sets button state
-     * @param enabled if true, removes disabled state. If false, adds it. Otherwise, does nothing with disabled state
-     * @param playing if true, sets class for pause icon. If false, set class for play icon. Otherwise, does nothing with classes
-     */
-    tuneButton({enabled, playing}) {
-        if (enabled === true) {
-            this.button.removeAttribute('disabled');
-        } else if (enabled === false) {
-            this.button.setAttribute('disabled', 'disabled');
-        }
-
-        if (playing === true) {
-            this.button.classList.add('rp-button-pause');
-            this.button.classList.remove('rp-button-play');
-        } else if (playing === false) {
-            this.button.classList.remove('rp-button-pause');
-            this.button.classList.add('rp-button-play');
-        }
     }
 
     log(...msgs) {
