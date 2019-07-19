@@ -45,14 +45,13 @@ Load video files into player.
 {
     url: './sample.webm',
     type: 'video/webm',
-    start: 1553259933992,
-    end: 1553259983475,
+    offset: 0
 }
 ```
 
 * 'url' is the path to a file or stream.
 * 'type' is optional. This is a mime-type for the loaded file. The browser tries to guess, but sometimes it need help.
-* 'start' and 'end' are the timestamps of the moment video was started and ended. It might be UNIX time or your custom time offset.
+* 'offset' is the timestamp (in milliseconds) of a video start. It might be UNIX time or your custom time offset.
 
 
 ### reset

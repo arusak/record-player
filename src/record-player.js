@@ -32,11 +32,12 @@ export class RecordPlayer {
         this.descriptors = descriptors;
         this.setupPlaybackFromDescriptors(descriptors);
 
-        this.seeker.setDuration(this.duration);
         this.seeker.setPosition(0);
 
         this.adjustNumberOfScreens(descriptors.length);
         this.loadMedia().then(() => {
+            this.seeker.setDuration(this.getPlaybackLengthInMs());
+
             // forcing videos to have equal height
             this.videoElements.forEach(videoElement => {
                 videoElement.parentElement.style.flex = `${videoElement.videoWidth / videoElement.videoHeight}`;
@@ -46,13 +47,25 @@ export class RecordPlayer {
     }
 
     /**
+     * Calculates the duration of all videos' common time
+     * (after the last video start and before first video end)
+     * @return {number} milliseconds
+     */
+    getPlaybackLengthInMs() {
+        // offsets are moments when videos start
+        let starts = this.descriptors.map(descriptor => descriptor.offset);
+        // the moment when video ends is the sum of its length and offset
+        let ends = this.videoElements.map((videoElement, idx) => videoElement.duration * 1000 + this.descriptors[idx].offset);
+        // duration is length between last start and first end of a video
+        return Math.min(...ends) - Math.max(...starts);
+    }
+
+    /**
      * Setup playback basing on descriptors
      */
     setupPlaybackFromDescriptors(descriptors) {
-        let startTime = Math.max(...descriptors.map(video => video.start));
-        let endTime = Math.min(...descriptors.map(video => video.end));
-        this.duration = endTime - startTime;
-        descriptors.forEach(video => video.skip = startTime - video.start);
+        let maxOffset = Math.max(...descriptors.map(video => video.offset));
+        descriptors.forEach(video => video.skip = maxOffset - video.offset);
     }
 
     /**
@@ -191,7 +204,7 @@ export class RecordPlayer {
     loadMedia() {
         const goToEndOnVideoEnded = videoElement => {
             videoElement.addEventListener('ended', () => {
-                this.seeker.setPosition(this.duration);
+                this.seeker.setPosition(this.getPlaybackLengthInMs());
                 this.ended = true;
                 this.pause();
             })
@@ -199,7 +212,7 @@ export class RecordPlayer {
 
         const addVideoSource = (videoElement, descriptor) => {
             if (descriptor.url) {
-                let source = Utils.createDomElement('source', {src: descriptor.url});
+                let source = Utils.createDomElement('source', '', {src: descriptor.url});
 
                 if (descriptor.type) {
                     source.type = descriptor.type;

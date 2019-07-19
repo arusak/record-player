@@ -6,20 +6,17 @@ let metadata = [
     {
         url: './long.mp4',
         type: 'video/mp4',
-        start: new Date('2019-03-22T13:00:00.000Z').getTime(),
-        end: new Date('2019-03-22T13:00:27.500Z').getTime(),
+        offset: 0
     },
     {
         url: './shortr.mp4',
         type: 'video/mp4',
-        start: new Date('2019-03-22T13:00:02.300Z').getTime(),
-        end: new Date('2019-03-22T13:00:20.000Z').getTime(),
+        offset: 2300,
     },
     {
         url: './shortg.mp4',
         type: 'video/mp4',
-        start: new Date('2019-03-22T13:00:02.300Z').getTime(),
-        end: new Date('2019-03-22T13:00:20.000Z').getTime(),
+        offset: 2300,
     },
 ];
 
