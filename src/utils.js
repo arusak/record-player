@@ -7,7 +7,7 @@ export const Utils = {
      * @param eventName what event to catch
      * @param callback what to do
      */
-    one: (el, eventName, callback) => {
+    one(el, eventName, callback) {
         function handler() {
             callback();
             el.removeEventListener(eventName, handler);
@@ -20,7 +20,7 @@ export const Utils = {
      * Removes all sources from <video> or <audio>
      * @param mediaElement {HTMLMediaElement}
      */
-    resetMediaSources: (mediaElement) => {
+    resetMediaSources(mediaElement) {
         mediaElement.removeAttribute('src');
         mediaElement.srcObject = undefined;
         for (let s of mediaElement.getElementsByTagName('source')) {
@@ -31,7 +31,7 @@ export const Utils = {
     /**
      * Converts number of milliseconds to 'm:SS' string
      */
-    formatTime: (ms) => {
+    formatTime(ms) {
         let s = Math.trunc(ms / 1000);
         let m = Math.trunc(s / 60);
         s = s % 60;

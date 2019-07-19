@@ -195,9 +195,26 @@ export class RecordPlayer {
      * @return Promise promise of metadata for all videos loaded
      */
     loadMedia() {
-        function goToEndWhenEnded() {
+        const goToEndOnVideoEnded = videoElement => {
+            videoElement.addEventListener('ended', () => {
+                this.seeker.setPosition(this.duration);
+                this.ended = true;
+                this.pause();
+            })
+        };
 
-        }
+        const addVideoSource = (videoElement, descriptor) => {
+            if (descriptor.url) {
+                let source = document.createElement('source');
+                source.src = descriptor.url;
+
+                if (descriptor.type) {
+                    source.type = descriptor.type;
+                }
+
+                videoElement.appendChild(source);
+            }
+        };
 
         // first we create promise which awaits all video elements to load metadata
         let allMetadataLoadedPromise = this.waitAll('loadedmetadata');
@@ -205,26 +222,8 @@ export class RecordPlayer {
         // then we initiate loading of files
         this.videoElements.forEach((videoElement, idx) => {
             Utils.resetMediaSources(videoElement);
-
-            let description = this.descriptors[idx];
-
-            if (description.url) {
-                let source = document.createElement('source');
-                source.src = description.url;
-
-                if (description.type) {
-                    source.type = description.type;
-                }
-
-                videoElement.appendChild(source);
-            }
-
-
-            videoElement.addEventListener('ended', () => {
-                this.seeker.setPosition(this.duration);
-                this.ended = true;
-                this.pause();
-            })
+            addVideoSource(this.descriptors[idx]);
+            goToEndOnVideoEnded(videoElement);
         });
 
         return allMetadataLoadedPromise;
@@ -236,14 +235,13 @@ export class RecordPlayer {
      * @return {Promise} resolved when the event is fired on every video element
      */
     waitAll(evtName) {
-        let awaitedPromises = this.videoElements.map(videoElement => {
-            return new Promise((resolve) => {
-                Utils.one(videoElement, evtName, resolve);
-            });
-        });
+        let awaitedPromises = this.videoElements.map(videoElement =>
+            new Promise(resolve =>
+                Utils.one(videoElement, evtName, resolve)));
 
         // return promise and do some logging
-        return Promise.all(awaitedPromises).then(() => Utils.log(`All ${evtName.toUpperCase()} now`));
+        return Promise.all(awaitedPromises).then(() =>
+            Utils.log(`All ${evtName.toUpperCase()} now`));
     }
 
     /**
@@ -270,17 +268,17 @@ export class RecordPlayer {
      * @param videoElement
      */
     setupDiagnostic(videoElement) {
+        const add = msg => {
+            diagnostic.innerHTML += msg + '<br>';
+            diagnostic.scrollTop = diagnostic.scrollHeight - diagnostic.clientHeight;
+        };
+
         let diagnostic = Object.assign(document.createElement('pre'), {className: 'rp-diagnostic'});
         videoElement.addEventListener('mousemove', evt => {
             diagnostic.style.opacity = '1';
             diagnostic.style.left = evt.clientX + 'px';
         });
         videoElement.addEventListener('mouseleave', () => diagnostic.style.opacity = '0');
-
-        function add(msg) {
-            diagnostic.innerHTML += msg + '<br>';
-            diagnostic.scrollTop = diagnostic.scrollHeight - diagnostic.clientHeight;
-        }
 
         let evtTypes = ['canplay', 'error', 'seeking', 'seeked', 'playing', 'play', 'stalled', 'waiting', 'pause', 'paused', 'ended'];
         evtTypes.forEach(type => videoElement.addEventListener(type, () => add(type)));
