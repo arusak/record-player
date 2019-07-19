@@ -1,18 +1,12 @@
 import {Seeker} from './seeker.js';
 import {Utils} from './utils.js';
 import {PlayButton} from './play-button.js';
+import Config from './config.js';
 
 export class RecordPlayer {
     constructor(container, options) {
-        this.processOptions(options);
+        Config.init(options);
         this.createDom(container);
-    }
-
-    processOptions(options) {
-        this.options = options;
-        if (options.log) {
-            Utils.enableLogging = true;
-        }
     }
 
     createDom(container) {
@@ -255,7 +249,7 @@ export class RecordPlayer {
             videoElement.addEventListener('timeupdate', evt => this.onTimeUpdate(videoElement, evt));
         }
 
-        if (this.options.debug) {
+        if (Config.debugEnabled) {
             this.setupDiagnostic(videoElement);
         }
 

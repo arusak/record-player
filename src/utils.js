@@ -1,3 +1,5 @@
+import Config from './config.js';
+
 export const Utils = {
     enableLogging: false,
 
@@ -40,7 +42,7 @@ export const Utils = {
     },
 
     log(...msgs) {
-        if (this.enableLogging) {
+        if (Config.loggingEnabled) {
             console.log('[RecordPlayer] ', ...msgs);
         }
     }
