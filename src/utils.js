@@ -41,6 +41,30 @@ export const Utils = {
         return `${m}:${s < 10 ? '0' : ''}${s}`;
     },
 
+    /**
+     * Creates DOM element with classes and attributes
+     * @param name {string} node name
+     * @param [className] {string} space separated class names
+     * @param [attributes] {Object} key-value dictionary
+     * @return {HTMLElement}
+     */
+    createDomElement(name, className, attributes) {
+        let el;
+        try {
+            el = document.createElement(name);
+            if (className) {
+                el.className = className;
+            }
+            if (attributes) {
+                Object.assign(el, attributes);
+            }
+        } catch (e) {
+            Utils.log(`Error creating <${name}>`, e);
+        }
+
+        return el;
+    },
+
     log(...msgs) {
         if (Config.loggingEnabled) {
             console.log('[RecordPlayer] ', ...msgs);

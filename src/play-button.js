@@ -1,17 +1,9 @@
+import {Utils} from './utils.js';
+
 export class PlayButton {
     constructor() {
-        this.el = Object.assign(document.createElement('button'), {className: 'rp-button rp-button-play'});
-        this.el.addEventListener('click', () => {
-            if (this.el.classList.contains('rp-button-play')) {
-                if (this.onplay) {
-                    this.onplay();
-                }
-            } else {
-                if (this.onpause) {
-                    this.onpause();
-                }
-            }
-        });
+        this.el = Utils.createDomElement('button', 'rp-button rp-button-play');
+        this.el.addEventListener('click', () => this.onClick());
     }
 
     enable() {
@@ -30,5 +22,17 @@ export class PlayButton {
     showPauseIcon() {
         this.el.classList.add('rp-button-pause');
         this.el.classList.remove('rp-button-play');
+    }
+
+    onClick() {
+        if (this.el.classList.contains('rp-button-play')) {
+            if (this.onplay) {
+                this.onplay();
+            }
+        } else {
+            if (this.onpause) {
+                this.onpause();
+            }
+        }
     }
 }

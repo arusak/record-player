@@ -6,25 +6,25 @@ let onSeek;
 
 export class Seeker {
     constructor(callback) {
-        node = Object.assign(document.createElement('div'), {className: 'rp-seeker'});
+        node = Utils.createDomElement('div', 'rp-seeker');
 
-        bar = Object.assign(document.createElement('div'), {className: 'rp-seeker-bar'});
+        bar = Utils.createDomElement('div', 'rp-seeker-bar');
         node.appendChild(bar);
 
         bar.addEventListener('click', evt => this.onClick(evt));
         bar.addEventListener('mousemove', evt => this.onMouseMove(evt));
         bar.addEventListener('mouseout', evt => this.onMouseOut(evt));
 
-        viewed = Object.assign(document.createElement('div'), {className: 'rp-seeker-viewed'});
+        viewed = Utils.createDomElement('div', 'rp-seeker-viewed');
         bar.appendChild(viewed);
 
-        buffered = Object.assign(document.createElement('div'), {className: 'rp-seeker-buffered'});
+        buffered = Utils.createDomElement('div', 'rp-seeker-buffered');
         bar.appendChild(buffered);
 
-        float = Object.assign(document.createElement('div'), {className: 'rp-seeker-float'});
+        float = Utils.createDomElement('div', 'rp-seeker-float');
         node.appendChild(float);
 
-        durationDisplay = Object.assign(document.createElement('div'), {className: 'rp-seeker-duration-display'});
+        durationDisplay = Utils.createDomElement('div', 'rp-seeker-duration-display');
         node.appendChild(durationDisplay);
 
         onSeek = callback;

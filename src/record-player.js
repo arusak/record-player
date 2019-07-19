@@ -10,10 +10,10 @@ export class RecordPlayer {
     }
 
     createDom(container) {
-        this.wrapper = Object.assign(document.createElement('div'), {className: 'rp-player'});
+        this.wrapper = Utils.createDomElement('div', 'rp-player');
         container.appendChild(this.wrapper);
 
-        this.scene = Object.assign(document.createElement('div'), {className: 'rp-scene'});
+        this.scene = Utils.createDomElement('div', 'rp-scene');
         this.wrapper.appendChild(this.scene);
 
         this.controls = this.createControls();
@@ -39,7 +39,7 @@ export class RecordPlayer {
         this.loadMedia().then(() => {
             // forcing videos to have equal height
             this.videoElements.forEach(videoElement => {
-                videoElement.parentElement.style.flex = videoElement.videoWidth / videoElement.videoHeight;
+                videoElement.parentElement.style.flex = `${videoElement.videoWidth / videoElement.videoHeight}`;
             });
             this.seek(0);
         });
@@ -65,7 +65,7 @@ export class RecordPlayer {
         if (number > this.videoElements.length) {
             for (let i = this.videoElements.length; i < number; i++) {
                 let videoEl = this.createVideoElement(i === 0);
-                let videoWrapper = Object.assign(document.createElement('div'), {className: 'rp-video-wrapper'});
+                let videoWrapper = Utils.createDomElement('div', 'rp-video-wrapper');
                 videoWrapper.appendChild(videoEl);
 
                 this.videoElements.push(videoEl);
@@ -80,7 +80,7 @@ export class RecordPlayer {
      * Create play/pause playButton and position seeker
      */
     createControls() {
-        let controls = Object.assign(document.createElement('div'), {className: 'rp-controls'});
+        let controls = Utils.createDomElement('div', 'rp-controls');
 
         this.playButton = this.createPlayButton();
         controls.appendChild(this.playButton.el);
@@ -199,8 +199,7 @@ export class RecordPlayer {
 
         const addVideoSource = (videoElement, descriptor) => {
             if (descriptor.url) {
-                let source = document.createElement('source');
-                source.src = descriptor.url;
+                let source = Utils.createDomElement('source', {src: descriptor.url});
 
                 if (descriptor.type) {
                     source.type = descriptor.type;
@@ -216,7 +215,7 @@ export class RecordPlayer {
         // then we initiate loading of files
         this.videoElements.forEach((videoElement, idx) => {
             Utils.resetMediaSources(videoElement);
-            addVideoSource(this.descriptors[idx]);
+            addVideoSource(videoElement, this.descriptors[idx]);
             goToEndOnVideoEnded(videoElement);
         });
 
@@ -244,7 +243,8 @@ export class RecordPlayer {
      * @return HTMLElement
      */
     createVideoElement(main) {
-        let videoElement = Object.assign(document.createElement('video'), {controls: false, className: 'rp-video'});
+        let videoElement = Utils.createDomElement('video', 'rp-video', {controls: false});
+
         if (main) {
             videoElement.addEventListener('timeupdate', evt => this.onTimeUpdate(videoElement, evt));
         }
@@ -267,7 +267,7 @@ export class RecordPlayer {
             diagnostic.scrollTop = diagnostic.scrollHeight - diagnostic.clientHeight;
         };
 
-        let diagnostic = Object.assign(document.createElement('pre'), {className: 'rp-diagnostic'});
+        let diagnostic = Utils.createDomElement('pre', 'rp-diagnostic');
         videoElement.addEventListener('mousemove', evt => {
             diagnostic.style.opacity = '1';
             diagnostic.style.left = evt.clientX + 'px';
