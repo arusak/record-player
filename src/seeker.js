@@ -39,6 +39,7 @@ export class Seeker {
     }
 
     setPosition(ms) {
+        Utils.log(`Setting position ${ms}, duration ${duration}`);
         viewed.style.width = ms / duration * 100 + '%';
     }
 
@@ -47,6 +48,7 @@ export class Seeker {
     }
 
     onClick(evt) {
+        Utils.log(`Clicked to ${evt.offsetX}, clientWidth is ${bar.clientWidth}, fraction is ${evt.offsetX / bar.clientWidth}`);
         this.seekTo(evt.offsetX / bar.clientWidth);
     }
 
@@ -61,6 +63,7 @@ export class Seeker {
     }
 
     seekTo(fraction) {
+        Utils.log(`Fraction: ${fraction}, duration: ${duration}, seeking: ${duration * fraction}`);
         onSeek(duration * fraction);
     }
 }
