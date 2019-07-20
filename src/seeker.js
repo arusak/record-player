@@ -64,6 +64,15 @@ export class Seeker {
 
     seekTo(fraction) {
         Utils.log(`Fraction: ${fraction}, duration: ${duration}, seeking: ${duration * fraction}`);
-        onSeek(duration * fraction);
+        this.startLoading();
+        onSeek(duration * fraction).then(() => this.endLoading());
+    }
+
+    startLoading() {
+        node.classList.add('rp-seeker_loading')
+    }
+
+    endLoading() {
+        node.classList.remove('rp-seeker_loading')
     }
 }

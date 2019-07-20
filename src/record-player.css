@@ -1,5 +1,7 @@
 .rp-scene {
   display: flex;
+  position: relative;
+  margin: 0 0 0.5rem 0;
 }
 
 .rp-video-wrapper {
@@ -18,6 +20,81 @@
   position: relative;
 }
 
+.rp-seeker.rp-seeker_loading {
+  overflow: hidden;
+}
+
+.rp-seeker.rp-seeker_loading::before {
+  content: '';
+  position: absolute;
+  left: -27px;
+  z-index: 2;
+
+  display: inline-block;
+  width: 200%;
+  height: 100%;
+  opacity: 0.2;
+
+  background-position-x: 0;
+  background: repeating-linear-gradient(-45deg,
+  #fff 1px,
+  #000 2px,
+  #000 11px,
+  #fff 12px,
+  #fff 20px) repeat-x;
+
+  animation-name: buttonMovingStripes;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes buttonMovingStripes {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(27px);
+  }
+}
+
+.rp-scene__loader {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+
+  opacity: 0.5;
+  background: #868686;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  font-size: 2rem;
+}
+
+.rp-scene__loader__spinner {
+  border-radius: 50%;
+  width: 3em;
+  height: 3em;
+  border: 0.5em solid rgba(0, 0, 0, 0.2);
+  border-top-color: rgba(0, 0, 0, 0.5);
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
 .rp-seeker-bar {
   flex: 1;
   height: 100%;
@@ -31,6 +108,7 @@
 .rp-seeker-buffered {
   height: 100%;
   position: absolute;
+  z-index: 1;
   top: 0;
   pointer-events: none;
 }

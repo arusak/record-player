@@ -13,7 +13,7 @@ export class RecordPlayer {
         this.wrapper = Utils.createDomElement('div', 'rp-player');
         container.appendChild(this.wrapper);
 
-        this.scene = Utils.createDomElement('div', 'rp-scene');
+        this.scene = this.createScene();
         this.wrapper.appendChild(this.scene);
 
         this.controls = this.createControls();
@@ -30,13 +30,22 @@ export class RecordPlayer {
      */
     load(descriptors) {
         this.descriptors = descriptors;
+
+        this.seeker.startLoading();
+        this.sceneStartLoading();
         this.setupPlaybackFromDescriptors(descriptors);
 
         this.seeker.setPosition(0);
 
         this.adjustNumberOfScreens(descriptors.length);
+
+        this.waitForCanPlayAll().then(() => {
+            this.sceneEndLoading();
+        });
+
         this.loadMedia().then(() => {
             this.seeker.setDuration(this.getPlaybackLengthInMs());
+            this.seeker.endLoading();
 
             // forcing videos to have equal height
             this.videoElements.forEach(videoElement => {
@@ -90,6 +99,29 @@ export class RecordPlayer {
     }
 
     /**
+     * Create scene for all videos with loader
+     */
+    createScene() {
+        let scene = Utils.createDomElement('div', 'rp-scene');
+
+        let curtain = Utils.createDomElement('div', 'rp-scene__loader');
+        scene.append(curtain);
+
+        let spinner = Utils.createDomElement('div', 'rp-scene__loader__spinner');
+        curtain.append(spinner);
+
+        return scene;
+    }
+
+    sceneStartLoading() {
+        this.scene.querySelector('.rp-scene__loader').style.display = 'flex';
+    }
+
+    sceneEndLoading() {
+        this.scene.querySelector('.rp-scene__loader').style.display = 'none';
+    }
+
+    /**
      * Create play/pause playButton and position seeker
      */
     createControls() {
@@ -122,7 +154,9 @@ export class RecordPlayer {
         // rewind when user clicks play on ended scene
         this.goToStartIfEnded();
         this.disablePlayButtonUntilPlaybackStarts();
-        this.startPlaybackWhenReady();
+        this.waitForCanPlayAll().then(() => {
+            this.videoElements.forEach(e => e.play());
+        });
     }
 
     pause() {
@@ -137,7 +171,7 @@ export class RecordPlayer {
         }
     }
 
-    startPlaybackWhenReady() {
+    waitForCanPlayAll() {
         let canPlayPromises = this.videoElements.map(videoElement => {
             return new Promise(resolve => {
                 if (videoElement.readyState >= 3) {
@@ -148,10 +182,7 @@ export class RecordPlayer {
             });
         });
 
-        Promise.all(canPlayPromises).then(() => {
-            Utils.log(arguments);
-            this.videoElements.forEach(e => e.play());
-        });
+        return Promise.all(canPlayPromises);
     }
 
     disablePlayButtonUntilPlaybackStarts() {
@@ -168,6 +199,7 @@ export class RecordPlayer {
      * If video was playing, pauses it and resumes after successful seeking.
      *
      * @param targetInMs
+     * @return promise of seek completed
      */
     seek(targetInMs) {
         this.playButton.disable();
@@ -175,7 +207,7 @@ export class RecordPlayer {
         this.ended = false;
         let wasPaused = this.videoElements[0].paused;
 
-        this.waitAll('seeked').then(() => {
+        let allSeekedPromise = this.waitAll('seeked').then(() => {
             // when seek on all files is ended, resume playing if needed
             if (!wasPaused) {
                 this.play();
@@ -187,6 +219,8 @@ export class RecordPlayer {
             videoElement.pause();
             videoElement.currentTime = (this.descriptors[idx].skip + targetInMs) / 1000;
         });
+
+        return allSeekedPromise;
     }
 
     /**
