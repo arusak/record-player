@@ -69,10 +69,10 @@ export class Seeker {
     }
 
     startLoading() {
-        node.classList.add('rp-seeker_loading')
+        bar.classList.add('rp-seeker-bar_loading');
     }
 
     endLoading() {
-        node.classList.remove('rp-seeker_loading')
+        bar.classList.remove('rp-seeker-bar_loading');
     }
 }

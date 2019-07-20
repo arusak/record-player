@@ -5,20 +5,16 @@
   position: relative;
 }
 
-.rp-seeker-bar.rp-seeker-bar_loading {
-  overflow: hidden;
-}
-
-.rp-seeker-bar.rp-seeker-bar_loading::before {
+.rp-seeker-bar::before {
   content: '';
   position: absolute;
   left: -27px;
-  z-index: 2;
+  z-index: 1;
 
   display: inline-block;
   width: 200%;
   height: 100%;
-  opacity: 0.2;
+  opacity: 0;
 
   background-position-x: 0;
   background: repeating-linear-gradient(-45deg,
@@ -32,6 +28,17 @@
   animation-duration: 1s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+
+  transition: opacity 0.1s linear;
+}
+
+.rp-seeker-bar {
+  overflow: hidden;
+}
+
+.rp-seeker-bar.rp-seeker-bar_loading::before {
+  opacity: 0.2;
+  transition: opacity 1s ease;
 }
 
 @keyframes buttonMovingStripes {
@@ -112,6 +119,7 @@
 
   position: absolute;
   top: -1rem;
+  z-index: 2;
 
   background: white;
   border-radius: 2px;
