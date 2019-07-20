@@ -1,0 +1,38 @@
+.rp-button {
+  position: relative;
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 0.5rem 0 0;
+
+  background: darkorange;
+  border: none;
+  border-radius: 0.5rem;
+
+  cursor: pointer;
+}
+
+.rp-button::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rp-button-pause::before {
+  content: ' ▌▌';
+  left: 3px;
+}
+
+.rp-button-play::before {
+  position: absolute;
+  content: '►';
+  left: 2px;
+  font-size: 1.75rem;
+}

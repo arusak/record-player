@@ -1,18 +1,3 @@
-.rp-scene {
-  display: flex;
-  position: relative;
-  margin: 0 0 0.5rem 0;
-}
-
-.rp-video-wrapper {
-  flex: 1;
-}
-
-.rp-video {
-  width: 100%;
-  height: auto;
-}
-
 .rp-seeker {
   display: flex;
   flex: 1;
@@ -20,11 +5,11 @@
   position: relative;
 }
 
-.rp-seeker.rp-seeker_loading {
+.rp-seeker-bar.rp-seeker-bar_loading {
   overflow: hidden;
 }
 
-.rp-seeker.rp-seeker_loading::before {
+.rp-seeker-bar.rp-seeker-bar_loading::before {
   content: '';
   position: absolute;
   left: -27px;
@@ -94,7 +79,6 @@
   }
 }
 
-
 .rp-seeker-bar {
   flex: 1;
   height: 100%;
@@ -139,63 +123,7 @@
   font-size: 0.7rem;
 }
 
-.rp-controls {
-  display: flex;
-  align-items: center;
-}
-
-.rp-button {
-  position: relative;
-  display: inline-block;
-  width: 2.5rem;
-  height: 2.5rem;
-  margin: 0 0.5rem 0 0;
-
-  background: darkorange;
-  border: none;
-  border-radius: 0.5rem;
-
-  cursor: pointer;
-}
-
-.rp-button::before {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.rp-button-pause::before {
-  content: ' ▌▌';
-  left: 3px;
-}
-
-.rp-button-play::before {
-  position: absolute;
-  content: '►';
-  left: 2px;
-  font-size: 1.75rem;
-}
-
 .rp-seeker-duration-display {
   font-size: 0.85rem;
   margin-left: 0.5rem;
-}
-
-.rp-diagnostic {
-  opacity: 0;
-  background: white;
-  padding: 0.5rem;
-  position: fixed;
-  height: 10rem;
-  width: 6rem;
-  overflow-y: scroll;
-  pointer-events: none;
-  user-select: none;
 }

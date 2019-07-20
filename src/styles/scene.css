@@ -1,0 +1,26 @@
+.rp-scene {
+  display: flex;
+  position: relative;
+  margin: 0 0 0.5rem 0;
+}
+
+.rp-video-wrapper {
+  flex: 1;
+}
+
+.rp-video {
+  width: 100%;
+  height: auto;
+}
+
+.rp-diagnostic {
+  opacity: 0;
+  background: white;
+  padding: 0.5rem;
+  position: fixed;
+  height: 10rem;
+  width: 6rem;
+  overflow-y: scroll;
+  pointer-events: none;
+  user-select: none;
+}
