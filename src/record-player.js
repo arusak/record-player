@@ -238,9 +238,9 @@ export class RecordPlayer {
     loadMedia() {
         const goToEndOnVideoEnded = videoElement => {
             videoElement.addEventListener('ended', () => {
+                this.pause();
                 this.seeker.setPosition(this.getPlaybackLengthInMs());
                 this.ended = true;
-                this.pause();
             })
         };
 
@@ -328,9 +328,13 @@ export class RecordPlayer {
     }
 
     onTimeUpdate(videoElement) {
-        let seekerTime = videoElement.currentTime * 1000 - this.descriptors[0].skip;
-        Utils.log('Main <video> time', videoElement.currentTime + 's', 'Seeker time', seekerTime + 'ms');
-        this.seeker.setPosition(seekerTime);
+        if (!this.ended) {
+            let seekerTime = videoElement.currentTime * 1000 - this.descriptors[0].skip;
+            Utils.log('Main <video> time', videoElement.currentTime + 's', 'Seeker time', seekerTime + 'ms');
+            this.seeker.setPosition(seekerTime);
+        } else {
+            Utils.log('Tried to update seeker of stopped scene');
+        }
     }
 }
 
