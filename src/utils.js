@@ -1,8 +1,6 @@
 import Config from './config.js';
 
 export const Utils = {
-    enableLogging: false,
-
     /**
      * Creates a single-use event handler
      * @param el element to catch events on

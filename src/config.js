@@ -1,18 +1,16 @@
-let loggingEnabled= false;
-let debugEnabled= false;
-
+let loggingEnabled = false;
+let debugEnabled = false;
 
 const Config = {
-    get loggingEnabled(){
+    get loggingEnabled() {
         return loggingEnabled;
     },
 
-    get debugEnabled(){
+    get debugEnabled() {
         return debugEnabled;
     },
 
-    init(options) {
-        if (!options) return;
+    init(options = {}) {
         loggingEnabled = !!options.log;
         debugEnabled = !!options.debug;
     }
