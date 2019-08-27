@@ -1,9 +1,12 @@
 import {Utils} from './utils.js';
 
 export class PlayButton {
-    constructor() {
+    constructor(onPlay, onPause) {
         this.el = Utils.createDomElement('button', 'rp-button rp-button-play');
         this.el.addEventListener('click', () => this.onClick());
+
+        this.onPlay = onPlay;
+        this.onPause = onPause;
     }
 
     enable() {
@@ -26,12 +29,12 @@ export class PlayButton {
 
     onClick() {
         if (this.el.classList.contains('rp-button-play')) {
-            if (this.onplay) {
-                this.onplay();
+            if (typeof this.onPlay === 'function') {
+                this.onPlay();
             }
         } else {
-            if (this.onpause) {
-                this.onpause();
+            if (typeof this.onPause === 'function') {
+                this.onPause();
             }
         }
     }

@@ -137,10 +137,7 @@ export class RecordPlayer {
     }
 
     createPlayButton() {
-        let button = new PlayButton();
-        button.onplay = this.play.bind(this);
-        button.onpause = this.pause.bind(this);
-        return button;
+        return new PlayButton(this.play.bind(this), this.pause.bind(this));
     }
 
     createSeeker() {
