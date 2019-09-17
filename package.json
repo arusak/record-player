@@ -1,6 +1,6 @@
 {
   "name": "@arusak/record-player",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Multiple video files player for web",
   "main": "src/record-player.js",
   "directories": {
