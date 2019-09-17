@@ -225,6 +225,7 @@ export class RecordPlayer {
      * You need to load() after this to play something
      */
     reset() {
+        if (!this.videoElements) return;
         this.videoElements.forEach(Utils.resetMediaSources);
     }
 
