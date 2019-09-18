@@ -8,13 +8,14 @@
   },
   "scripts": {
     "test": "jest",
-    "test-ci": "jest",
-    "build-ci": "npm run release:copy",
     "coverage": "jest --coverage",
     "release": "npm run release:check && npm run release:copy && npm run release:publish",
     "release:publish": "cd dist && npm publish",
     "release:check": "npx np --no-publish --no-cleanup",
-    "release:copy": "rimraf dist && copyfiles ./src/*.js ./src/styles/* package.json README.md LICENSE dist"
+    "release:copy": "rimraf dist && copyfiles ./src/*.js ./src/styles/* package.json README.md LICENSE dist",
+    "test-ci": "jest",
+    "build-ci": "npm run release:copy",
+    "coverage-ci": "jest --coverage --coverageReporters=text-lcov | coveralls"
   },
   "publishConfig": {
     "access": "public"
@@ -35,6 +36,7 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "copyfiles": "^2.1.1",
+    "coveralls": "^3.0.6",
     "jest": "^24.9.0",
     "np": "^5.1.0",
     "rimraf": "^3.0.0"
