@@ -1,7 +1,7 @@
 Multiple video player
 =====================
 [![npm version](https://badge.fury.io/js/%40arusak%2Frecord-player.svg)](https://badge.fury.io/js/%40arusak%2Frecord-player)
-[![Build status](https://travis-ci.org/arusak/record-player.png?branch=master)](https://travis-ci.org/arusak/record-player)
+[![Build status](https://travis-ci.org/arusak/record-player.svg?branch=master)](https://travis-ci.org/arusak/record-player)
 [![Coverage Status](https://coveralls.io/repos/github/arusak/record-player/badge.svg?branch=master)](https://coveralls.io/github/arusak/record-player?branch=master)
 
 For synchronized playback of multiple video files at once.

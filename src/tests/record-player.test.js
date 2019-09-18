@@ -5,8 +5,4 @@ describe('RecordPlayer', function () {
         let player = new RecordPlayer(document.body);
         expect(player).toBeDefined();
     });
-
-    it('should fail', () => {
-        expect(false).toBeTruthy();
-    });
 });
