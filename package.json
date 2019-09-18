@@ -8,11 +8,16 @@
   },
   "scripts": {
     "test": "jest",
+    "test-ci": "jest",
+    "build-ci": "npm run release:copy",
     "coverage": "jest --coverage",
     "release": "npm run release:check && npm run release:copy && npm run release:publish",
     "release:publish": "cd dist && npm publish",
     "release:check": "npx np --no-publish --no-cleanup",
     "release:copy": "rimraf dist && copyfiles ./src/*.js ./src/styles/* package.json README.md LICENSE dist"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",
