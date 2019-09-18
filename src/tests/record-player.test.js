@@ -4,5 +4,9 @@ describe('RecordPlayer', function () {
     it('should construct itself', () => {
         let player = new RecordPlayer(document.body);
         expect(player).toBeDefined();
-    })
+    });
+
+    it('should fail', () => {
+        expect(false).toBeTruthy();
+    });
 });
