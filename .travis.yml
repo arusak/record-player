@@ -12,6 +12,7 @@ before_deploy:
 - cd dist
 deploy:
   provider: npm
+  edge: true
   email: $NPM_EMAIL
   api_key:
     secure: $NPM_SECURE_API_KEY
