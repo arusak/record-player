@@ -1,7 +1,3 @@
-@import 'scene.css';
-@import 'seeker.css';
-@import 'play-button.css';
-
 .rp-controls {
   display: flex;
   align-items: center;

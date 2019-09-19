@@ -2,11 +2,18 @@
   "name": "@arusak/record-player",
   "version": "0.3.3",
   "description": "Multiple video files player for web",
-  "main": "src/record-player.js",
+  "main": "dist/record-player.cjs.js",
+  "module": "dist/record-player.es.js",
+  "browser": "dist/record-player.umd.js",
+  "style": "dist/record-player.css",
   "directories": {
     "example": "demo"
   },
+  "files": [
+    "/dist"
+  ],
   "scripts": {
+    "clean": "rimraf dist",
     "test": "jest",
     "coverage": "jest --coverage",
     "release": "npm run release:check && npm run release:copy && npm run release:publish",
@@ -15,7 +22,8 @@
     "release:copy": "rimraf dist && copyfiles ./src/*.js ./src/styles/* package.json README.md LICENSE dist",
     "test-ci": "jest",
     "build-ci": "npm run release:copy",
-    "coverage-ci": "jest --coverage --coverageReporters=text-lcov | coveralls"
+    "coverage-ci": "jest --coverage --coverageReporters=text-lcov | coveralls",
+    "bundle": "npm run clean && npx rollup -c"
   },
   "publishConfig": {
     "access": "public"
@@ -39,6 +47,9 @@
     "coveralls": "^3.0.6",
     "jest": "^24.9.0",
     "np": "^5.1.0",
-    "rimraf": "^3.0.0"
+    "rimraf": "^3.0.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-css-only": "^1.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
   }
 }

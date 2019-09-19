@@ -3,6 +3,11 @@ import {Utils} from './utils.js';
 import {PlayButton} from './play-button.js';
 import Config from './config.js';
 
+import './styles/record-player.css';
+import './styles/seeker.css';
+import './styles/play-button.css';
+import './styles/scene.css';
+
 export class RecordPlayer {
     constructor(container, options) {
         Config.init(options);
