@@ -1,6 +1,6 @@
 {
   "name": "@arusak/record-player",
-  "version": "0.4.0-5",
+  "version": "0.4.0-6",
   "description": "Multiple video files player for web",
   "main": "dist/record-player.cjs.js",
   "module": "dist/record-player.es.js",
