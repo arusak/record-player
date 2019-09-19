@@ -17,7 +17,7 @@ deploy:
   api_key: $NPM_API_KEY
   tag: latest
   on:
-    condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+$"
+    condition: "$TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$"
     repo: arusak/record-player
 # versions with suffixes (-0, -pre, -rc1) are published with 'next' tag
 - provider: npm
@@ -27,5 +27,5 @@ deploy:
   api_key: $NPM_API_KEY
   tag: next
   on:
-    condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+-[0-9]+$"
+    condition: "$TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+-[0-9]+$"
     repo: arusak/record-player
