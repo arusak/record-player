@@ -10,3 +10,11 @@ script:
 - npm run build-ci
 before_deploy:
 - cd dist
+deploy:
+  provider: npm
+  email: $NPM_EMAIL
+  api_key:
+    secure: $NPM_SECURE_API_KEY
+  on:
+    tags: true
+    repo: arusak/record-player
