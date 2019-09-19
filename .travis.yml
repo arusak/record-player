@@ -9,11 +9,23 @@ script:
 - npm run coverage-ci
 - npm run bundle
 deploy:
-  provider: npm
+# versions without suffixes are published with 'latest' tag
+- provider: npm
   skip_cleanup: true
   edge: true
   email: $NPM_EMAIL
   api_key: $NPM_API_KEY
+  tag: latest
   on:
-    tags: true
+    condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+$"
+    repo: arusak/record-player
+# versions with suffixes (-0, -pre, -rc1) are published with 'next' tag
+- provider: npm
+  skip_cleanup: true
+  edge: true
+  email: $NPM_EMAIL
+  api_key: $NPM_API_KEY
+  tag: next
+  on:
+    condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+-[0-9]+$"
     repo: arusak/record-player
