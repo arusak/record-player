@@ -19,6 +19,7 @@ deploy:
   tag: latest
   on:
     condition: $TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$
+    all_branches: true
     repo: arusak/record-player
 # versions with suffixes (-0, -pre, -rc1) are published with 'next' tag
 - provider: npm
@@ -29,4 +30,5 @@ deploy:
   tag: next
   on:
     condition: $TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+-[0-9]+$
+    all_branches: true
     repo: arusak/record-player
