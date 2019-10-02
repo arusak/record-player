@@ -1,6 +1,7 @@
 module.exports = {
     verbose: true,
     coverageReporters: ['text'],
+    snapshotSerializers: ['jest-serializer-html'],
     setupFilesAfterEnv: [
         '<rootDir>/src/tests/utils/expect-extensions.js',
     ],

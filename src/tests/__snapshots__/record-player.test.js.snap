@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RecordPlayer renders correctly 1`] = `
+<div class="rp-scene">
+  <div class="rp-scene__loader">
+    <div class="rp-scene__loader__spinner">
+    </div>
+  </div>
+</div>
+<div class="rp-controls">
+  <button class="rp-button rp-button-play">
+  </button>
+  <div class="rp-seeker">
+    <div class="rp-seeker-bar">
+      <div class="rp-seeker-viewed"
+           style="width: 0%;"
+      >
+      </div>
+      <div class="rp-seeker-buffered">
+      </div>
+    </div>
+    <div class="rp-seeker-float">
+    </div>
+    <div class="rp-seeker-duration-display">
+    </div>
+  </div>
+</div>
+`;
