@@ -9,8 +9,14 @@ describe('Seeker', function () {
     const viewedClassName = 'rp-seeker-viewed';
 
     const defaultDuration = 10000;
+    const defaultWidth = 100;
 
-    const onClickCallback = () => {
+    const mock = {
+        onSeek: () => {
+            return new Promise(resolve => {
+                process.nextTick(resolve);
+            });
+        }
     };
 
     let seeker;
@@ -21,14 +27,14 @@ describe('Seeker', function () {
     let viewed;
 
     beforeEach(() => {
-        seeker = new Seeker(onClickCallback);
+        seeker = new Seeker(mock.onSeek);
         node = seeker.getNode();
         float = seeker.getNode().querySelector('.' + floatClassName);
         bar = seeker.getNode().querySelector('.' + barClassName);
         duration = seeker.getNode().querySelector('.' + durationClassName);
         viewed = seeker.getNode().querySelector('.' + viewedClassName);
 
-        Object.defineProperty(window.HTMLDivElement.prototype, 'clientWidth', {value: 100});
+        Object.defineProperty(window.HTMLDivElement.prototype, 'clientWidth', {value: defaultWidth});
 
         seeker.setDuration(defaultDuration);
         seeker.setPosition(0);
@@ -60,7 +66,6 @@ describe('Seeker', function () {
         });
 
         it('should contain 0:00 initially', () => {
-            // Object.defineProperty(window.MouseEvent.prototype, 'offsetX', {value: 0});
             window.MouseEvent.prototype.offsetX = 0;
             fireEvent.mouseMove(bar);
             expect(float.innerText).toBe('0:00');
@@ -68,7 +73,7 @@ describe('Seeker', function () {
         });
 
         it('should contain 0:10 at end of seeker bar', () => {
-            window.MouseEvent.prototype.offsetX = 100;
+            window.MouseEvent.prototype.offsetX = defaultWidth;
             fireEvent.mouseMove(bar);
             expect(float.innerText).toBe('0:10');
             fireEvent.mouseOut(bar);
@@ -102,9 +107,26 @@ describe('Seeker', function () {
     });
 
     describe('click', function () {
-        it('should call constructor callback on click', function () {
-            // spyOn()
+        let onSeekSpy;
+        let startLoadingSpy;
+        beforeEach(() => {
+            onSeekSpy = jest.spyOn(mock, 'onSeek');
+            startLoadingSpy = jest.spyOn(seeker, 'startLoading');
+            window.MouseEvent.prototype.offsetX = defaultWidth * 0.5;
+            fireEvent.click(bar);
         });
+
+        it('should call onSeek on click', function () {
+            expect(onSeekSpy).toBeCalled();
+        });
+
+        // it('should call constructor callback on click', function () {
+        //     expect(onSeekSpy).toBeCalledWith(defaultDuration * 0.5);
+        // });
+
+        // it('should call startLoading on click', function () {
+        //     expect(startLoadingSpy).toBeCalled();
+        // });
     });
 
     describe('getNode', function () {

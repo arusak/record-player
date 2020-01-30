@@ -2,16 +2,17 @@ import {Utils} from './utils.js';
 
 let node, bar, viewed, buffered, float, durationDisplay;
 let duration;
-let onSeek;
 
 export class Seeker {
-    constructor(callback) {
+    constructor(onSeek) {
+        this.onSeek = onSeek;
+
         node = Utils.createDomElement('div', 'rp-seeker');
 
         bar = Utils.createDomElement('div', 'rp-seeker-bar');
         node.appendChild(bar);
 
-        bar.addEventListener('click', evt => this.onClick(evt));
+        bar.addEventListener('click', evt => this.onSeek(evt));
         bar.addEventListener('mousemove', evt => this.onMouseMove(evt));
         bar.addEventListener('mouseout', evt => this.onMouseOut(evt));
 
@@ -26,8 +27,6 @@ export class Seeker {
 
         durationDisplay = Utils.createDomElement('div', 'rp-seeker-duration-display');
         node.appendChild(durationDisplay);
-
-        onSeek = callback;
 
         duration = 1000;
         this.setPosition(0);
@@ -65,7 +64,7 @@ export class Seeker {
     seekTo(fraction) {
         Utils.log(`Fraction: ${fraction}, duration: ${duration}, seeking: ${duration * fraction}`);
         this.startLoading();
-        onSeek(duration * fraction).then(() => this.endLoading());
+        this.onSeek(duration * fraction).then(() => this.endLoading());
     }
 
     startLoading() {
